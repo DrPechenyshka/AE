@@ -20,6 +20,8 @@ RUN npm ci
 COPY . .
 
 # Создаем .env.production файл с фиктивными значениями для сборки
+RUN mkdir -p /data/storage/images /data/storage/uploads /app/logs
+
 RUN echo "DATABASE_URL=postgresql://dummy:dummy@dummy:5432/dummy" > .env.production
 RUN echo "JWT_SECRET=dummy-jwt-secret-for-build" >> .env.production
 RUN echo "NODE_ENV=production" >> .env.production

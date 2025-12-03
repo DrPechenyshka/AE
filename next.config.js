@@ -6,12 +6,17 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // Важно: указываем какие пакеты должны быть включены в сборку
+  // Убрана устаревшая опция из experimental
+  // serverComponentsExternalPackages перемещено в serverExternalPackages
+  
+  // Современный способ: указываем какие пакеты должны быть включены в сборку
+  serverExternalPackages: ['pg', 'pg-native', 'sequelize', 'bcryptjs'],
+  
+  // Для работы с cookies в middleware
   experimental: {
-    serverComponentsExternalPackages: ['pg', 'pg-native', 'sequelize'],
+    // middleware: true, // Раскомментировать если нужно
   },
-  // Принудительно включаем пакет pg в сборку
-  serverExternalPackages: ['pg', 'pg-native', 'bcryptjs'],
+  
   // Отключаем оптимизации которые могут мешать
   webpack: (config, { isServer }) => {
     if (isServer) {

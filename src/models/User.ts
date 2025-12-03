@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from 'sequelize';
-import { sequelize } from '../lib/database';
+import { sequelize } from '@/lib/database';
+import bcrypt from 'bcryptjs';
 
 interface UserAttributes {
   id: number;
@@ -12,16 +13,20 @@ interface UserAttributes {
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 
-export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public id!: number;
   public email!: string;
   public password!: string;
   public name!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  // Метод для проверки пароля
+  public async checkPassword(password: string): Promise<boolean> {
+    return bcrypt.compare(password, this.password);
+  }
 }
 
-// Инициализация модели
 User.init(
   {
     id: {
@@ -30,29 +35,47 @@ User.init(
       primaryKey: true,
     },
     email: {
-      type: DataTypes.STRING,
-      unique: true,
+      type: DataTypes.STRING(255),
       allowNull: false,
+      unique: true,
       validate: {
         isEmail: true,
       },
     },
     password: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: false,
     },
     name: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: false,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     },
   },
   {
-    sequelize,
-    modelName: 'User',
     tableName: 'users',
+    sequelize,
     timestamps: true,
+    hooks: {
+      beforeCreate: async (user: User) => {
+        if (user.password) {
+          user.password = await bcrypt.hash(user.password, 12);
+        }
+      },
+      beforeUpdate: async (user: User) => {
+        if (user.changed('password')) {
+          user.password = await bcrypt.hash(user.password, 12);
+        }
+      },
+    },
   }
 );
 
-// Явно экспортируем модель
 export default User;

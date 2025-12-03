@@ -1,14 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
-// Динамический импорт для избежания выполнения во время сборки
-const getModels = async () => {
-  const { User } = await import('../../../../models/User');
-  return { User };
-};
+import User from '@/models/User';
+import { AuthService } from '@/lib/auth-utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,10 +13,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Динамически импортируем модели
-    const { User } = await getModels();
-
-    // Поиск пользователя
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return NextResponse.json(
@@ -33,8 +21,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Проверка пароля
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await user.checkPassword(password);
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: 'Неверный email или пароль' },
@@ -42,21 +29,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Создание JWT токена
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    // Теперь generateToken асинхронный
+    const token = await AuthService.generateToken(user.id);
 
     return NextResponse.json({
-      message: 'Вход выполнен успешно',
-      token,
+      success: true,
       user: {
         id: user.id,
         email: user.email,
-        name: user.name
-      }
+        name: user.name,
+      },
+      token,
     });
   } catch (error) {
     console.error('Ошибка входа:', error);
