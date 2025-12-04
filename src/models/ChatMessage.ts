@@ -1,4 +1,3 @@
-// models/ChatMessage.ts
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '@/lib/database';
 
@@ -8,11 +7,12 @@ interface ChatMessageAttributes {
   content: string;
   role: 'user' | 'assistant';
   attachments?: any[];
+  ai_model?: string;
   created_at?: Date;
   updated_at?: Date;
 }
 
-interface ChatMessageCreationAttributes extends Optional<ChatMessageAttributes, 'id' | 'attachments' | 'created_at' | 'updated_at'> {}
+interface ChatMessageCreationAttributes extends Optional<ChatMessageAttributes, 'id' | 'attachments' | 'ai_model' | 'created_at' | 'updated_at'> {}
 
 class ChatMessage extends Model<ChatMessageAttributes, ChatMessageCreationAttributes> implements ChatMessageAttributes {
   public id!: number;
@@ -20,6 +20,7 @@ class ChatMessage extends Model<ChatMessageAttributes, ChatMessageCreationAttrib
   public content!: string;
   public role!: 'user' | 'assistant';
   public attachments?: any[];
+  public ai_model?: string;
   public readonly created_at!: Date;
   public readonly updated_at!: Date;
 }
@@ -52,6 +53,10 @@ ChatMessage.init(
       allowNull: true,
       defaultValue: [],
     },
+    ai_model: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
@@ -67,6 +72,17 @@ ChatMessage.init(
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
+    indexes: [
+      {
+        fields: ['user_id'],
+      },
+      {
+        fields: ['created_at'],
+      },
+      {
+        fields: ['role'],
+      }
+    ]
   }
 );
 

@@ -57,6 +57,7 @@ BEGIN
             content TEXT,
             role VARCHAR(20) NOT NULL CHECK (role IN ('user', 'assistant')),
             attachments JSONB DEFAULT '[]'::jsonb,
+            ai_model VARCHAR(100),
             "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
             "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         );
@@ -64,9 +65,19 @@ BEGIN
         -- Создаем индексы для таблицы chat_messages
         CREATE INDEX idx_chat_messages_user_id ON chat_messages(user_id);
         CREATE INDEX idx_chat_messages_created_at ON chat_messages("createdAt");
+        CREATE INDEX idx_chat_messages_ai_model ON chat_messages(ai_model);
         
         RAISE NOTICE 'Таблица chat_messages создана';
     ELSE
+        -- Проверяем существование поля ai_model, добавляем если нет
+        IF NOT EXISTS (SELECT FROM information_schema.columns 
+                       WHERE table_schema = 'public' 
+                       AND table_name = 'chat_messages' 
+                       AND column_name = 'ai_model') THEN
+            ALTER TABLE chat_messages ADD COLUMN ai_model VARCHAR(100);
+            RAISE NOTICE 'Добавлено поле ai_model в таблицу chat_messages';
+        END IF;
+        
         RAISE NOTICE 'Таблица chat_messages уже существует';
     END IF;
 END $$;

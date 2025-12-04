@@ -1,7 +1,8 @@
+// next.config.ts - либо удалите этот файл, либо сделайте так:
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'standalone',
 };
 
 export default nextConfig;

@@ -1,7 +1,15 @@
-// app/api/chat/save/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { AuthService } from '@/lib/auth-utils';
 import ChatMessage from '@/models/ChatMessage';
+
+// Интерфейс для вложения
+interface Attachment {
+  id?: string;
+  url: string;
+  type: string;
+  name?: string;
+  size?: number;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +22,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { content, role, attachments } = await request.json();
+    const { content, role, attachments, ai_model } = await request.json();
 
     if (!content && (!attachments || attachments.length === 0)) {
       return NextResponse.json(
@@ -29,6 +37,7 @@ export async function POST(request: NextRequest) {
       content: content || '',
       role: role || 'user',
       attachments: attachments || [],
+      ...(ai_model && { ai_model }),
     });
 
     return NextResponse.json({
@@ -39,6 +48,7 @@ export async function POST(request: NextRequest) {
         role: message.role,
         timestamp: message.created_at,
         attachments: message.attachments,
+        ai_model: message.ai_model,
       }
     });
   } catch (error) {
