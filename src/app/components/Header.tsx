@@ -1,3 +1,4 @@
+// src/app/components/Header.tsx (добавляем ссылку на тикеты)
 'use client';
 
 import Link from 'next/link';
@@ -75,6 +76,16 @@ export default function Header() {
                 Чат
               </Link>
               <Link 
+                href="/tickets" 
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  pathname === '/tickets' 
+                    ? 'bg-gray-700 text-white' 
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
+                }`}
+              >
+                Поддержка
+              </Link>
+              <Link 
                 href="/about" 
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   pathname === '/about' 
@@ -92,6 +103,12 @@ export default function Header() {
                 <div className="flex items-center space-x-3">
                   <span className="text-gray-300 text-sm hidden sm:block">
                     Привет, {user.name}
+                    {user.role === 'moderator' && (
+                      <span className="ml-2 text-xs bg-blue-600 px-2 py-0.5 rounded">Модератор</span>
+                    )}
+                    {user.role === 'admin' && (
+                      <span className="ml-2 text-xs bg-purple-600 px-2 py-0.5 rounded">Админ</span>
+                    )}
                   </span>
                   <button
                     onClick={handleLogout}

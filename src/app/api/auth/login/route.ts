@@ -1,3 +1,4 @@
+// src/app/api/auth/login/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import User from '@/models/User';
 import { AuthService } from '@/lib/auth-utils';
@@ -29,8 +30,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Теперь generateToken асинхронный
-    const token = await AuthService.generateToken(user.id);
+    // Генерируем токен с ролью
+    const token = await AuthService.generateToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    });
 
     return NextResponse.json({
       success: true,
@@ -38,6 +44,7 @@ export async function POST(request: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
       },
       token,
     });

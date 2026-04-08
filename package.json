@@ -16,12 +16,14 @@
     "docker:init-db": "docker-compose exec app npm run db:init"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1016.0",
     "bcryptjs": "^3.0.2",
     "cookie": "^1.0.2",
     "jose": "^6.1.0",
     "jsonwebtoken": "^9.0.2",
     "next": "15.5.4",
     "pg": "^8.16.3",
+    "pg-hstore": "^2.3.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "sequelize": "^6.37.7"

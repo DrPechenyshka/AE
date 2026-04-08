@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { AuthService } from '@/lib/auth-utils';
 
+export const runtime = 'nodejs';
+
 export async function middleware(request: NextRequest) {
   // Пропускаем публичные маршруты
   const publicRoutes = [

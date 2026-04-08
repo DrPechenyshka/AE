@@ -1,4 +1,3 @@
-// models/Upload.ts
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '@/lib/database';
 
@@ -8,7 +7,8 @@ interface UploadAttributes {
   original_name: string;
   mime_type: string;
   size: number;
-  path: string;
+  s3_key: string;           // путь в S3 (вместо path)
+  description?: string;     // описание файла
   user_id?: number;
   createdAt?: Date;
   updatedAt?: Date;
@@ -22,7 +22,8 @@ class Upload extends Model<UploadAttributes, UploadCreationAttributes> implement
   public original_name!: string;
   public mime_type!: string;
   public size!: number;
-  public path!: string;
+  public s3_key!: string;
+  public description?: string;
   public user_id?: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -51,9 +52,14 @@ Upload.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    path: {
+    s3_key: {
       type: DataTypes.STRING(500),
       allowNull: false,
+      unique: true,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     user_id: {
       type: DataTypes.INTEGER,
